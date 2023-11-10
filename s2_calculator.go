@@ -7,13 +7,13 @@ this is a simple calculator,which allow you to type in your simple expression in
 
 */
 
-type calculator func(int, int) int
+type Calculator func(int, int) int
 
-//it is use to process information from keyboard
+//it is using to process information from keyboard
 //option is for recognizing + _ * /
 
-func ProcessIncome(num1 int, num2 int, option string) int {
-	funcMap := map[string]calculator{
+func ProcessIncome(option string) Calculator {
+	funcMap := map[string]Calculator{
 		"add":     Add,
 		"minus":   Minus,
 		"product": Product,
@@ -32,11 +32,11 @@ func ProcessIncome(num1 int, num2 int, option string) int {
 			return computer(num1, num2, Divide)
 		}
 	*/
-	return computer(num1, num2, funcMap[option])
+	return funcMap[option]
 }
 
 // 用于调用具体计算函数
-func computer(a int, b int, function calculator) int {
+func computer(a int, b int, function Calculator) int {
 	return function(a, b)
 }
 
@@ -69,7 +69,8 @@ func main() {
 	scan, err := fmt.Scanf(`%d , %d , %s`, &num1, &num2, &sig)
 
 	if err != nil {
-		ProcessIncome(num1, num2, sig)
+		funcUsing := ProcessIncome(sig)
+		result = computer(num1, num2, funcUsing)
 		fmt.Printf("\nanswer is %d\n%v", result, scan)
 	} else {
 		print("Error!")
