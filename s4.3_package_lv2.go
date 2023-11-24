@@ -42,9 +42,14 @@ type timestampWriter struct {
 func (tw *timestampWriter) Write(p []byte) (n int, err error) {
 	// 添加时间戳和时间
 	//println(tw.timestamp.Unix())
-
+	var clock [3]int
+	clockStr := []byte("")
+	clock[0], clock[1], clock[2] = tw.timestamp.Clock()
+	for _, v := range clock {
+		clockStr = strconv.AppendInt(clockStr, int64(v), 10)
+	}
 	stamp := []byte(strconv.FormatInt(tw.timestamp.Unix(), 10))
-	p = BytesCombine(stamp, p)
+	p = BytesCombine([]byte("时间："), clockStr, []byte("时间戳："), stamp, p)
 	//p = append(p, '\n')
 	// 输出到文件
 	n, err = tw.of.Write(p)
