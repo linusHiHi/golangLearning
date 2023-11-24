@@ -7,7 +7,7 @@ import (
 
 func main() {
 	//time zone
-	loc, err := time.LoadLocation("asia/Beijing")
+	loc, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -16,14 +16,14 @@ func main() {
 	fmt.Println(beginTime.In(loc))
 
 	//using clock() to get time
-	hour, min, sec := beginTime.Clock()
-	fmt.Printf("程序开始时间：%d:%d:%d\n", hour, min, sec)
+	hours, mins, secs := beginTime.Clock()
+	fmt.Printf("程序开始时间：%d:%d:%d\n", hours, mins, secs)
 	//hour()...等效方法
 	fmt.Printf("程序开始时间：%d:%d:%d\n", beginTime.Hour(), beginTime.Minute(), beginTime.Second())
 	//获取日期
 	year, month, day := beginTime.Date()
 	fmt.Printf("date: %d,%d,%d\n", year, month, day)
-	fmt.Printf("%d%,d,%d\n", beginTime.Year(), beginTime.Month(), beginTime.Day())
+	fmt.Printf("%d,%d,%d\n", beginTime.Year(), beginTime.Month(), beginTime.Day())
 
 	//time addition
 	twoHourLater := beginTime.Add(time.Hour * 2)
@@ -41,7 +41,7 @@ func main() {
 
 	//截断精度
 	truncatedTime := beginTime.Truncate(time.Hour)
-	println(truncatedTime)
+	fmt.Printf("%v\n", truncatedTime)
 
 	preFormatString := time.Now()
 	formatString := preFormatString.Format("2006-02-01 15:04:05")
@@ -64,4 +64,24 @@ func main() {
 	} else {
 		fmt.Printf("解析后的持续时间：%v，总小时数：%f\n", parsedDuration, parsedDuration.Hours())
 	}
+
+	//timer &&ticker
+	timerPrinter := time.NewTimer(durationSince)
+	defer timerPrinter.Stop()
+	for i := 1; i >= 5; i++ {
+		<-timerPrinter.C // 等待定时器通道触发
+
+		// 在这里执行定时任务
+		fmt.Println("timer at", time.Now())
+	}
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	for {
+		<-ticker.C // 等待定时器通道触发
+
+		// 在这里执行定时任务
+		fmt.Println("Tick at", time.Now())
+	}
+
 }
