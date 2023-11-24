@@ -58,7 +58,7 @@ func (d *DigitalGoods) BrandPrinter() {
 	fmt.Printf("its Brand is \"%v\"\n", d.brand)
 }
 
-//调用接口的函数们
+// 调用接口的函数们
 func check(m Manager) int {
 	return m.Checker()
 }
