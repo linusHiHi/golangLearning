@@ -2,9 +2,9 @@ package main
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -29,6 +29,10 @@ func main() {
 	fmt.Fprintln(logWriter, "用户执行操作B")
 }
 
+func BytesCombine(pBytes ...[]byte) []byte {
+	return bytes.Join(pBytes, []byte(""))
+}
+
 // timestampWriter 是一个实现 io.Writer 接口的结构体，它在写入数据前添加时间戳
 type timestampWriter struct {
 	timestamp time.Time
@@ -37,25 +41,24 @@ type timestampWriter struct {
 
 func (tw *timestampWriter) Write(p []byte) (n int, err error) {
 	// 添加时间戳和时间
-	println(tw.timestamp.Unix())
-	stamp := testBinaryWrite(tw.timestamp.Unix())
-	for _, v := range stamp {
-		p = append(p, v)
-	}
+	//println(tw.timestamp.Unix())
+
+	stamp := []byte(strconv.FormatInt(tw.timestamp.Unix(), 10))
+	p = BytesCombine(stamp, p)
 	//p = append(p, '\n')
 	// 输出到文件
 	n, err = tw.of.Write(p)
 	return n, err
 }
 
-func testBinaryWrite(x interface{}) []byte {
-	buf := new(bytes.Buffer)
-	// for int32, the resulting size of buf will be 4 bytes
-	// for int64, the resulting size of buf will be 8 bytes
-	err := binary.Write(buf, binary.BigEndian, x)
-	if err != nil {
-		fmt.Println("binary.Write failed:", err)
-	}
-	fmt.Printf("%x\n", buf.Bytes())
-	return buf.Bytes()
-}
+//func testBinaryWrite(x interface{}) []byte {
+//	buf := new(bytes.Buffer)
+//	// for int32, the resulting size of buf will be 4 bytes
+//	// for int64, the resulting size of buf will be 8 bytes
+//	err := binary.Write(buf, binary.BigEndian, x)
+//	if err != nil {
+//		fmt.Println("binary.Write failed:", err)
+//	}
+//	fmt.Printf("%x\n", buf.Bytes())
+//	return buf.Bytes()
+//}
