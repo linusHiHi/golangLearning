@@ -16,7 +16,10 @@ func main() {
 	}
 	defer loggerTxt.Close()
 	// 创建一个带时间戳的写入器
-	logWriter := &timestampWriter{timestamp: time.Now()}
+	logWriter := &timestampWriter{
+		timestamp: time.Now(),
+		of:        loggerTxt,
+	}
 
 	// 模拟用户操作并记录日志
 	fmt.Fprintln(logWriter, "用户登录")
@@ -29,15 +32,19 @@ func main() {
 // timestampWriter 是一个实现 io.Writer 接口的结构体，它在写入数据前添加时间戳
 type timestampWriter struct {
 	timestamp time.Time
+	of        *os.File
 }
 
 func (tw *timestampWriter) Write(p []byte) (n int, err error) {
 	// 添加时间戳和时间
+	println(tw.timestamp.Unix())
 	stamp := testBinaryWrite(tw.timestamp.Unix())
-	p = stamp
+	for _, v := range stamp {
+		p = append(p, v)
+	}
+	//p = append(p, '\n')
 	// 输出到文件
-
-	n := len(stamp)
+	n, err = tw.of.Write(p)
 	return n, err
 }
 
@@ -49,6 +56,6 @@ func testBinaryWrite(x interface{}) []byte {
 	if err != nil {
 		fmt.Println("binary.Write failed:", err)
 	}
-	fmt.Printf("% x\n", buf.Bytes())
+	fmt.Printf("%x\n", buf.Bytes())
 	return buf.Bytes()
 }
