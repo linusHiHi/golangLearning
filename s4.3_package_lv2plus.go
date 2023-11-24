@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"time"
@@ -52,7 +53,8 @@ func (tw *timestampWriter) Write(p []byte) (n int, err error) {
 	p = BytesCombine([]byte("时间："), clockStr, []byte("时间戳："), stamp, p)
 	//p = append(p, '\n')
 	// 输出到文件
-	n, err = tw.of.Write(p)
+	combinedWriter := io.MultiWriter(tw.of, os.Stderr)
+	n, err = combinedWriter.Write(p)
 	return n, err
 }
 
