@@ -30,7 +30,7 @@ func main() {
 	CountBuf := readByBufDec()
 	bufTimeB := time.Since(bufTimeA)
 
-	fmt.Printf("ioReader running time: %v\nbuf running time: %v\n", ioTimeB, bufTimeB)
+	fmt.Printf("ioReadWriter running time: %v\nbufReadWriter running time: %v\n", ioTimeB, bufTimeB)
 	fmt.Printf("ioReader count a: %d\nbuf count a: %d\n", CountOs, CountBuf)
 }
 
@@ -55,7 +55,7 @@ func fileDec(fn function, path string) func() int {
 
 func newBuf(f *os.File) int {
 	//initializing
-	strOrigin := []byte("abcd")
+	strOrigin := []byte("abcd\n")
 	bufWriter := bufio.NewWriter(f)
 	//writing
 	for i := 1; i <= 1024; i++ {
@@ -73,7 +73,7 @@ func newBuf(f *os.File) int {
 }
 
 func newOs(f *os.File) int {
-	strOrigin := []byte("abcd")
+	strOrigin := []byte("abcd\n")
 	for i := 1; i <= 1024; i++ {
 		_, err := f.Write(strOrigin)
 		if err != nil {
