@@ -10,67 +10,95 @@ import (
 
 const textPath = "testTXT.txt"
 
-type re
-
 func main() {
+	//decortation
+	newOsDec := fileDec(newOs)
+	newBufDec := fileDec(newBuf)
+	readByOsDec := fileDec(readByOs)
+	readByBufDec := fileDec(readByBuf)
+
 	ioTimeA := time.Now()
-	readInOs(os.OpenFile("testTXT.txt"))
+	_ = newOs()
 	ioTimeB := time.Since(ioTimeA)
 
 	bufTimeA := time.Now()
-	readByBuf(fileOpen("testTXT.txt"))
+
 	bufTimeB := time.Since(bufTimeA)
 
 	fmt.Printf("ioReader running time: %v\nbuf running time: %v\n", ioTimeB, bufTimeB)
 
 }
 
-//file operation decoration
-func fileDec(fn func(file *os.File)int)  {
-	f, errOpen := os.OpenFile(textPath, os.O_RDWR|os.O_CREATE, 0666)
-	if errOpen != nil{panic(errOpen)}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {panic(err)}
-	}(f)
-
-	fn(f)
+// file operation decoration
+func fileDec(fn func(file *os.File) int) func() int {
+	return func() int {
+		f, errOpen := os.OpenFile(textPath, os.O_RDWR|os.O_CREATE, 0666)
+		if errOpen != nil {
+			panic(errOpen)
+		}
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				panic(err)
+			}
+		}(f)
+		result := fn(f)
+		return result
+	}
 }
 
-func newTestTXT(f *os.File)int{
+func newBuf(f *os.File) int {
 	//initializing
 	strOrigin := []byte("abcd")
 	bufWriter := bufio.NewWriter(f)
 	//writing
 	for i := 1; i <= 1024; i++ {
 		_, errWr := bufWriter.Write(strOrigin)
-		if errWr != nil {println("写入错误", errWr)}
+		if errWr != nil {
+			println("写入错误", errWr)
+		}
 	}
 	//flushing
 	err := bufWriter.Flush()
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 	return 0
 }
 
+func newOs(f *os.File) int {
+	strOrigin := []byte("abcd")
+	for i := 1; i <= 1024; i++ {
+		_, err := f.Write(strOrigin)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return 0
+}
 
-func readByBuf(f *os.File) int{
+func readByBuf(f *os.File) int {
 	reader := bufio.NewReader(f)
 	b := make([]byte, 2)
 	count := 0
 	for {
 		_, err := reader.Read(b)
 
-		if err != nil && err != io.EOF {panic(err)}
-		if err == io.EOF {break}
+		if err != nil && err != io.EOF {
+			panic(err)
+		}
+		if err == io.EOF {
+			break
+		}
 		//fmt.Printf("%s\n", block)
-		if b == []byte("a"){
+		if rune(b[0]) == 'a' || rune(b[1]) == 'a' {
 			count++
 		}
 	}
 	return count
 }
 
-func readInOs(file *os.File) int{
+func readByOs(file *os.File) int {
 	buf := make([]byte, 2)
 	count := 0
 	for {
@@ -84,7 +112,9 @@ func readInOs(file *os.File) int{
 			break
 		}
 		//fmt.Printf("%s\n", buf)
-		if buf == []byte("a"){count++}
+		if buf == []byte("a") {
+			count++
+		}
 		return count
 	}
 }
