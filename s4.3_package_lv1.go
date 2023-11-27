@@ -28,6 +28,7 @@ func main() {
 	//os包测速
 	ioTimeA := time.Now()
 	_ = writeOsDec()
+	//count* 变量是接受数得“a”的个数的
 	CountOs := readByOsDec()
 	ioTimeB := time.Since(ioTimeA)
 	//bufio测速
@@ -59,6 +60,8 @@ func fileDec(fn function, path string) func() int {
 	return fnDec
 }
 
+// 用bufio 来写入数据，以下类推。
+// 返回值是为了与function类型匹配。
 func writeBuf(f *os.File) int {
 	//initializing
 	strOrigin := []byte("abcd\n")
