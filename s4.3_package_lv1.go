@@ -8,31 +8,36 @@ import (
 	"time"
 )
 
-const textPath = "testTXT.txt"
+const textPathOs = "testTXTos.txt"
+const textPathBuf = "testTXTBuf.txt"
+
+type function func(file *os.File) int
 
 func main() {
-	//decortation
-	newOsDec := fileDec(newOs)
-	newBufDec := fileDec(newBuf)
-	readByOsDec := fileDec(readByOs)
-	readByBufDec := fileDec(readByBuf)
+	//decoration
+	newOsDec := fileDec(newOs, textPathOs)
+	newBufDec := fileDec(newBuf, textPathOs)
+	readByOsDec := fileDec(readByOs, textPathBuf)
+	readByBufDec := fileDec(readByBuf, textPathBuf)
 
 	ioTimeA := time.Now()
-	_ = newOs()
+	_ = newOsDec()
+	CountOs := readByOsDec()
 	ioTimeB := time.Since(ioTimeA)
 
 	bufTimeA := time.Now()
-
+	_ = newBufDec()
+	CountBuf := readByBufDec()
 	bufTimeB := time.Since(bufTimeA)
 
 	fmt.Printf("ioReader running time: %v\nbuf running time: %v\n", ioTimeB, bufTimeB)
-
+	fmt.Printf("ioReader count a: %v\nbuf count a: %v\n", CountOs, CountBuf)
 }
 
 // file operation decoration
-func fileDec(fn func(file *os.File) int) func() int {
-	return func() int {
-		f, errOpen := os.OpenFile(textPath, os.O_RDWR|os.O_CREATE, 0666)
+func fileDec(fn function, path string) func() int {
+	fnDec := func() int {
+		f, errOpen := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 		if errOpen != nil {
 			panic(errOpen)
 		}
@@ -45,6 +50,7 @@ func fileDec(fn func(file *os.File) int) func() int {
 		result := fn(f)
 		return result
 	}
+	return fnDec
 }
 
 func newBuf(f *os.File) int {
@@ -108,13 +114,14 @@ func readByOs(file *os.File) int {
 			//fmt.Println("读取文件出错:", err)
 			panic(err)
 		} else if err == io.EOF {
-			//println("osreader读完了")
+			//println("osReader读完了")
 			break
 		}
 		//fmt.Printf("%s\n", buf)
-		if buf == []byte("a") {
+		if buf[0] == 'a' || buf[1] == 'a' {
 			count++
 		}
 		return count
 	}
+	return 0
 }
