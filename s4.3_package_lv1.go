@@ -70,7 +70,7 @@ func writeBuf(f *os.File) int {
 	for i := 1; i <= 1024; i++ {
 		_, errWr := bufWriter.Write(strOrigin)
 		if errWr != nil {
-			println("写入错误", errWr)
+			panic(errWr)
 		}
 	}
 	//flushing
@@ -120,17 +120,15 @@ func readByOs(file *os.File) int {
 		_, err := file.Read(buf)
 
 		if err != nil && err != io.EOF {
-			//fmt.Println("读取文件出错:", err)
 			panic(err)
-		} else if err == io.EOF {
-			//println("osReader读完了")
+		}
+		if err == io.EOF {
 			break
 		}
-		//fmt.Printf("%s\n", buf)
+		//数a的个数
 		if buf[0] == 'a' || buf[1] == 'a' {
 			count++
 		}
-
 	}
 	return count
 }
