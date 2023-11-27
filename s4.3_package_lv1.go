@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-func fileOpen() *os.File {
+func fileOpen(nameFile string) *os.File {
 	//initialize
-	file, errOp := os.OpenFile("testTXT.txt", os.O_RDWR|os.O_CREATE, 0666)
+	file, errOp := os.OpenFile(nameFile, os.O_RDWR|os.O_CREATE, 0666)
 	if errOp != nil {
 		fmt.Println("打开错误", errOp)
 		return nil
@@ -20,7 +20,8 @@ func fileOpen() *os.File {
 
 func newTestTXT() *os.File {
 	strOrigin := []byte("abcd")
-	file := fileOpen()
+	file := fileOpen("testTXT.txt")
+	defer file.Close()
 
 	//use "bufio" write text for testing
 	bufWriter := bufio.NewWriter(file)
@@ -38,15 +39,22 @@ func newTestTXT() *os.File {
 	return file
 }
 
+// type readerF func (file *os.File)
+//
+// func reader(f readerF, url string)  {
+//
+// }
 func readInBuf(file *os.File) {
+	defer file.Close()
 	reader := bufio.NewReader(file)
-	block := make([]byte, 2)
+	block := make([]byte, 2*512)
 	for {
-		n, err := reader.Read(block)
+		_, err := reader.Read(block)
+		fmt.Printf("%s\n", block)
 		if err != nil && err != io.EOF {
 			panic(err)
 		}
-		if 0 == n {
+		if err == io.EOF {
 			break
 		}
 	}
@@ -54,34 +62,34 @@ func readInBuf(file *os.File) {
 }
 
 func readInOs(file *os.File) {
-	buf := make([]byte, 2)
+	buf := make([]byte, 2*512)
+	defer file.Close()
 
 	for {
 		_, err := file.Read(buf)
-		if err != nil {
-			if err != io.EOF {
-				fmt.Println("读取文件出错:", err)
-			} else if err == io.EOF {
-				println("读完了")
-				break
-			}
+		fmt.Printf("%s\n", buf)
+		if err != nil && err != io.EOF {
+			fmt.Println("读取文件出错:", err)
+			panic(err)
+		} else if err == io.EOF {
+			println("osreader读完了")
+			break
 		}
 	}
 }
 
 func main() {
-	testTxt := newTestTXT()
 
-	println("hello")
+	//println("hello")
 	ioTimeA := time.Now()
-	readInOs(testTxt)
+	readInOs(fileOpen("testTXT.txt"))
 	ioTimeB := time.Since(ioTimeA)
 
-	println("hello")
+	//println("hello")
 	bufTimeA := time.Now()
-	readInBuf(testTxt)
+	readInBuf(fileOpen("testTXT.txt"))
 	bufTimeB := time.Since(bufTimeA)
 
 	fmt.Printf("ioReader running time: %v\nbuf running time: %v\n", ioTimeB, bufTimeB)
-	testTxt.Close()
+
 }
