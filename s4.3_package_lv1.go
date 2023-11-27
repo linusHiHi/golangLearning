@@ -16,8 +16,8 @@ type function func(file *os.File) int
 func main() {
 	//decoration
 	newOsDec := fileDec(newOs, textPathOs)
-	newBufDec := fileDec(newBuf, textPathOs)
-	readByOsDec := fileDec(readByOs, textPathBuf)
+	newBufDec := fileDec(newBuf, textPathBuf)
+	readByOsDec := fileDec(readByOs, textPathOs)
 	readByBufDec := fileDec(readByBuf, textPathBuf)
 
 	ioTimeA := time.Now()
@@ -31,7 +31,7 @@ func main() {
 	bufTimeB := time.Since(bufTimeA)
 
 	fmt.Printf("ioReader running time: %v\nbuf running time: %v\n", ioTimeB, bufTimeB)
-	fmt.Printf("ioReader count a: %v\nbuf count a: %v\n", CountOs, CountBuf)
+	fmt.Printf("ioReader count a: %d\nbuf count a: %d\n", CountOs, CountBuf)
 }
 
 // file operation decoration
@@ -121,7 +121,7 @@ func readByOs(file *os.File) int {
 		if buf[0] == 'a' || buf[1] == 'a' {
 			count++
 		}
-		return count
+
 	}
-	return 0
+	return count
 }
