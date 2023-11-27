@@ -55,15 +55,3 @@ func (tw *timestampWriter) Write(p []byte) (n int, err error) {
 	n, err = tw.of.Write(p)
 	return n, err
 }
-
-//func testBinaryWrite(x interface{}) []byte {
-//	buf := new(bytes.Buffer)
-//	// for int32, the resulting size of buf will be 4 bytes
-//	// for int64, the resulting size of buf will be 8 bytes
-//	err := binary.Write(buf, binary.BigEndian, x)
-//	if err != nil {
-//		fmt.Println("binary.Write failed:", err)
-//	}
-//	fmt.Printf("%x\n", buf.Bytes())
-//	return buf.Bytes()
-//}

@@ -8,33 +8,39 @@ import (
 	"time"
 )
 
+/*
+因为之前写了测读取时间的程序，所以本程序测试了写入然后再读取耗费的时间。
+主要过程就是分别用两种方法写入“abcd\n”*1024,然后读取并数出其中“a”的个数。
+*/
+//定义文件名，方便随时修改
 const textPathOs = "testTXTos.txt"
 const textPathBuf = "testTXTBuf.txt"
 
+// ”读写函数“类型，在装饰器中作为参数类型
 type function func(file *os.File) int
 
 func main() {
 	//decoration
-	newOsDec := fileDec(newOs, textPathOs)
-	newBufDec := fileDec(newBuf, textPathBuf)
+	writeOsDec := fileDec(writeOs, textPathOs)
+	writeBufDec := fileDec(writeBuf, textPathBuf)
 	readByOsDec := fileDec(readByOs, textPathOs)
 	readByBufDec := fileDec(readByBuf, textPathBuf)
-
+	//os包测速
 	ioTimeA := time.Now()
-	_ = newOsDec()
+	_ = writeOsDec()
 	CountOs := readByOsDec()
 	ioTimeB := time.Since(ioTimeA)
-
+	//bufio测速
 	bufTimeA := time.Now()
-	_ = newBufDec()
+	_ = writeBufDec()
 	CountBuf := readByBufDec()
 	bufTimeB := time.Since(bufTimeA)
-
+	//打印耗时和a的数量
 	fmt.Printf("ioReadWriter running time: %v\nbufReadWriter running time: %v\n", ioTimeB, bufTimeB)
 	fmt.Printf("ioReader count a: %d\nbuf count a: %d\n", CountOs, CountBuf)
 }
 
-// file operation decoration
+// file read&write operation decoration 作用是打开关闭文件
 func fileDec(fn function, path string) func() int {
 	fnDec := func() int {
 		f, errOpen := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
@@ -53,7 +59,7 @@ func fileDec(fn function, path string) func() int {
 	return fnDec
 }
 
-func newBuf(f *os.File) int {
+func writeBuf(f *os.File) int {
 	//initializing
 	strOrigin := []byte("abcd\n")
 	bufWriter := bufio.NewWriter(f)
@@ -72,7 +78,7 @@ func newBuf(f *os.File) int {
 	return 0
 }
 
-func newOs(f *os.File) int {
+func writeOs(f *os.File) int {
 	strOrigin := []byte("abcd\n")
 	for i := 1; i <= 1024; i++ {
 		_, err := f.Write(strOrigin)
