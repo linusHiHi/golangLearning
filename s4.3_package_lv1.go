@@ -8,88 +8,83 @@ import (
 	"time"
 )
 
-func fileOpen(nameFile string) *os.File {
-	//initialize
-	file, errOp := os.OpenFile(nameFile, os.O_RDWR|os.O_CREATE, 0666)
-	if errOp != nil {
-		fmt.Println("打开错误", errOp)
-		return nil
-	}
-	return file
-}
+const textPath = "testTXT.txt"
 
-func newTestTXT() *os.File {
-	strOrigin := []byte("abcd")
-	file := fileOpen("testTXT.txt")
-	defer file.Close()
-
-	//use "bufio" write text for testing
-	bufWriter := bufio.NewWriter(file)
-
-	for i := 1; i <= 1024; i++ {
-		_, errWr := bufWriter.Write(strOrigin)
-		if errWr != nil {
-			println("写入错误", errWr)
-		}
-	}
-	err := bufWriter.Flush()
-	if err != nil {
-		return nil
-	}
-	return file
-}
-
-// type readerF func (file *os.File)
-//
-// func reader(f readerF, url string)  {
-//
-// }
-func readInBuf(file *os.File) {
-	defer file.Close()
-	reader := bufio.NewReader(file)
-	block := make([]byte, 2*512)
-	for {
-		_, err := reader.Read(block)
-		fmt.Printf("%s\n", block)
-		if err != nil && err != io.EOF {
-			panic(err)
-		}
-		if err == io.EOF {
-			break
-		}
-	}
-
-}
-
-func readInOs(file *os.File) {
-	buf := make([]byte, 2*512)
-	defer file.Close()
-
-	for {
-		_, err := file.Read(buf)
-		fmt.Printf("%s\n", buf)
-		if err != nil && err != io.EOF {
-			fmt.Println("读取文件出错:", err)
-			panic(err)
-		} else if err == io.EOF {
-			println("osreader读完了")
-			break
-		}
-	}
-}
+type re
 
 func main() {
-
-	//println("hello")
 	ioTimeA := time.Now()
-	readInOs(fileOpen("testTXT.txt"))
+	readInOs(os.OpenFile("testTXT.txt"))
 	ioTimeB := time.Since(ioTimeA)
 
-	//println("hello")
 	bufTimeA := time.Now()
-	readInBuf(fileOpen("testTXT.txt"))
+	readByBuf(fileOpen("testTXT.txt"))
 	bufTimeB := time.Since(bufTimeA)
 
 	fmt.Printf("ioReader running time: %v\nbuf running time: %v\n", ioTimeB, bufTimeB)
 
+}
+
+//file operation decoration
+func fileDec(fn func(file *os.File)int)  {
+	f, errOpen := os.OpenFile(textPath, os.O_RDWR|os.O_CREATE, 0666)
+	if errOpen != nil{panic(errOpen)}
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {panic(err)}
+	}(f)
+
+	fn(f)
+}
+
+func newTestTXT(f *os.File)int{
+	//initializing
+	strOrigin := []byte("abcd")
+	bufWriter := bufio.NewWriter(f)
+	//writing
+	for i := 1; i <= 1024; i++ {
+		_, errWr := bufWriter.Write(strOrigin)
+		if errWr != nil {println("写入错误", errWr)}
+	}
+	//flushing
+	err := bufWriter.Flush()
+	if err != nil {panic(err)}
+	return 0
+}
+
+
+func readByBuf(f *os.File) int{
+	reader := bufio.NewReader(f)
+	b := make([]byte, 2)
+	count := 0
+	for {
+		_, err := reader.Read(b)
+
+		if err != nil && err != io.EOF {panic(err)}
+		if err == io.EOF {break}
+		//fmt.Printf("%s\n", block)
+		if b == []byte("a"){
+			count++
+		}
+	}
+	return count
+}
+
+func readInOs(file *os.File) int{
+	buf := make([]byte, 2)
+	count := 0
+	for {
+		_, err := file.Read(buf)
+
+		if err != nil && err != io.EOF {
+			//fmt.Println("读取文件出错:", err)
+			panic(err)
+		} else if err == io.EOF {
+			//println("osreader读完了")
+			break
+		}
+		//fmt.Printf("%s\n", buf)
+		if buf == []byte("a"){count++}
+		return count
+	}
 }
