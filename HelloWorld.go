@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	book := "a"
+	book := 300 % 500
 	var age, age2 int = 2, 3444
 
 	fmt.Printf("hello,world! %v %d %o\nasd", book, age, age2)
@@ -15,8 +15,7 @@ func main() {
 		if i >= 2 {
 			fmt.Printf("amd,yes!")
 
-		}
-		else {
+		} else {
 			fmt.Printf("animate")
 		}
 	}
@@ -30,7 +29,7 @@ func main() {
 	}
 }
 
-func NewPrint(num string) int{
+func NewPrint(num string) int {
 	fmt.Printf(num)
 	return 1
 }

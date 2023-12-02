@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+//接口还有别的写法吗
+
 // Manager 管理接口
 type Manager interface {
 	Checker() int
@@ -35,6 +37,27 @@ func (g *Goods) ReNewer(newAmount int) {
 
 // Printer 打印名称和储量
 func (g *Goods) Printer() {
+	fmt.Printf("%v的储量为：%d,爱来自goods镜像\n", g.name, g.amount)
+}
+
+type GoodsImg struct {
+	name   string
+	price  int
+	amount int
+}
+
+// Checker 使用指针接收者是为了同reNew（刷新）保持一致
+func (g GoodsImg) Checker() int {
+	return g.amount
+}
+
+// ReNewer 刷新用的函数
+func (g GoodsImg) ReNewer(newAmount int) {
+	g.amount = newAmount
+}
+
+// Printer 打印名称和储量
+func (g GoodsImg) Printer() {
 	fmt.Printf("%v的储量为：%d\n", g.name, g.amount)
 }
 
@@ -47,7 +70,7 @@ type DigitalGoods struct {
 
 // Printer 方法重写，子类覆盖父类
 func (d *DigitalGoods) Printer() {
-	fmt.Printf("%v的储量为：%d,爱来自digital\n", d.name, d.amount)
+	fmt.Printf("%v(%v %v)的储量为：%d,爱来自digital(rewrited)\n", d.name, d.brand, d.typeStr, d.amount)
 }
 
 func (d *DigitalGoods) TypePrinter() {
@@ -97,13 +120,25 @@ func main() {
 		brand:   "apple",
 		typeStr: "14pro max",
 	}
+	dm.name = "hello"
+
+	var goodImg GoodsImg
+	goodImg.amount = 233
 	//测试各函数
 	printFuncDig(&dm)
 	printFunc(&good)
 	fmt.Printf("%d\n", check(&dm))
 	fmt.Printf("%d\n", check(&good))
 	reNew(&dm, 233)
+	reNew(goodImg, 233)
+
 	//测试digital manager的有效性
 	printFuncDig(&dm)
+	printFunc(goodImg)
 	typePrint(&dm)
+
+	var a rune = 'a'
+	strOrigin := []byte("abcd")
+	fmt.Printf("%v\n", a)
+	fmt.Printf("%v\n", strOrigin)
 }

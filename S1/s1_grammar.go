@@ -6,14 +6,12 @@ import (
 	"math/rand"
 )
 
-
 // lv1
 
 func sum(a, b int) int {
 	result := a + b
 	return result
 }
-
 
 // LV2
 
@@ -31,7 +29,6 @@ func judgePrimeNum(num int) bool {
 
 	return judge
 }
-
 
 // LV x binSearch 用于二分法查找rand传来的数：low， high 是搜索范围， num是要查找的随机数， arr 是所查找的列表
 // 尝试递归
